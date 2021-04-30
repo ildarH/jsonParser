@@ -81,7 +81,7 @@ function createFormTitle(str) {
   const formHeader = document.createElement('h2');
   formHeader.textContent = title;
   formHeader.id = 'formTitle';
-  formHeader.classList = 'text-center mt-3';
+  formHeader.classList = 'text-center mt-3 mb-3';
   return formHeader;
 }
 
@@ -91,7 +91,7 @@ function createFormInputs(inputs) {
 }
 
 function createInputElement(input, reserveId = 0) {
-  const regex = /[^\w]/g;
+  const regex = /[^\w]|[0-9]/g;
   const isLabelExist = input.hasOwnProperty('label') ? true : false;
   let id =
     isLabelExist && !!input.label.replace(regex, '') // check for non-latin id's
@@ -117,8 +117,9 @@ function createInputElement(input, reserveId = 0) {
   const inputElement = document.createElement('input');
   const labelElement = isLabelExist ? document.createElement('label') : null;
   const multipleFragment = document.createDocumentFragment();
-  let multipleCheckbox;
-  
+  let multipleCheckboxElements;
+  let arrayForCheckbox;
+
   const attribute = input.input || '';
 
   inputElement.id = `${id}-${type}`;
@@ -129,48 +130,42 @@ function createInputElement(input, reserveId = 0) {
     case 'email':
     case 'textarea':
     case 'date':
+    case 'file':
       inputElement.classList = 'form-control';
+      if (filetype) inputElement.accept = filetype.map((file) => '.'.concat(file));
       break;
     case 'checkbox':
       inputElement.classList = 'form-check-input';
-      labelElement.classList = 'form-check-label';
-    case 'file':
-      inputElement.classList = 'form-control';
-      if (filetype) {
-        inputElement.accept = filetype.map(file => '.'.concat(file))
-      }
+      attribute.checked = (checked == 'true')
+      isLabelExist ? labelElement.classList = 'form-check-label' : '';
       break;
     case 'password':
       inputElement.classList = 'form-control';
-      inputElement.autocomplete = "on"
+      inputElement.autocomplete = 'on';
       break;
+    case 'color':
     case 'technology':
-      multipleCheckbox = technologies.map(value => {
+      arrayForCheckbox = technologies || colors;
+      multipleCheckboxElements = arrayForCheckbox.map((value) => {
         const labelMultipleElement = document.createElement('label');
         const inputMultipleElement = document.createElement('input');
         labelMultipleElement.classList = 'form-check-label';
         labelMultipleElement.htmlFor = value;
-        labelMultipleElement.append(value);
+        if (colors) {
+          labelMultipleElement.classList += ' color-label rounded-3';
+          labelMultipleElement.style.backgroundColor = value;
+        } else {
+          labelMultipleElement.append(value);
+        }
         inputMultipleElement.classList = 'form-check-input';
         inputMultipleElement.id = value;
         inputMultipleElement.type = 'checkbox';
-        return createHtmlWrapper({ label: labelMultipleElement, input: inputMultipleElement }, 'checkbox')
-      })
-      multipleFragment.append(...multipleCheckbox)
-      break;
-    case 'color':
-      multipleCheckbox = colors.map(value => {
-        const labelMultipleElement = document.createElement('label');
-        const inputMultipleElement = document.createElement('input');
-        labelMultipleElement.classList = 'form-check-label color-label rounded-3';
-        labelMultipleElement.htmlFor = value;
-        labelMultipleElement.style.backgroundColor = value;
-        inputMultipleElement.classList = 'form-check-input';
-        inputMultipleElement.id = value;
-        inputMultipleElement.type = 'checkbox';
-        return createHtmlWrapper({ label: labelMultipleElement, input: inputMultipleElement }, 'checkbox')
-      })
-      multipleFragment.append(...multipleCheckbox)
+        return createHtmlWrapper(
+          { label: labelMultipleElement, input: inputMultipleElement },
+          'checkbox',
+        );
+      });
+      multipleFragment.append(...multipleCheckboxElements);
       break;
     default:
       break;
@@ -189,7 +184,8 @@ function createInputElement(input, reserveId = 0) {
     labelElement.htmlFor = `${id}-${type}`;
     labelElement.append(input.label);
   }
-  if (multipleFragment.childElementCount > 0) return createHtmlWrapper({label: labelElement || '', input: multipleFragment}, 'field')
+  if (multipleFragment.childElementCount > 0)
+    return createHtmlWrapper({ label: labelElement || '', input: multipleFragment }, 'field');
   return createHtmlWrapper({ label: labelElement || '', input: inputElement }, type);
 }
 
@@ -211,27 +207,29 @@ function createReferences(references) {
   const rowElement = document.createElement('div');
   const colElement = document.createElement('div');
   const fragment = document.createDocumentFragment();
-  rowElement.classList = 'row mb-3';
-  colElement.classList = 'col';
+  rowElement.classList = 'row mb-3 justify-content-evenly';
+  colElement.classList = 'col-6';
 
   references.forEach((reference) => {
     const textWithoutRef = reference['text without ref'] || null;
     const text = reference.text || null;
     const link = reference.ref || null;
-    const input = reference.input || null;
-
+    const input = reference.input ? createInputElement(reference) : null;
     const spanElement = textWithoutRef ? document.createElement('span') : null;
     const linkElement = link ? document.createElement('a') : null;
+    spanElement ? spanElement.append(textWithoutRef + ' ') : '';
     linkElement ? linkElement.append(text) : '';
-
-    fragment.append(spanElement || null, linkElement || null, input || null);
+    linkElement ? linkElement.href = link : '';
+    fragment.append(spanElement || '', linkElement || '', input || '');
   });
   rowElement.append(colElement);
   colElement.append(fragment);
+  const checkbox = colElement.querySelector('.form-check')
+  checkbox ? checkbox.classList = 'form-check-inline' : '';
   return rowElement;
 }
 
-function createHtmlWrapper(elements, type, attributes) {
+function createHtmlWrapper(elements, type) {
   const { label, input, buttons } = elements;
   const fragment = document.createDocumentFragment();
   const rowElement = document.createElement('div');
@@ -276,11 +274,10 @@ function createHtmlWrapper(elements, type, attributes) {
   }
 }
 
-
 function createMasks() {
   const allMaskedInputs = document.querySelectorAll('[data-mask]');
-  allMaskedInputs.forEach(input => {
-    let mask = input.dataset.mask
-    $(input).mask(mask)
-  })
+  allMaskedInputs.forEach((input) => {
+    let mask = input.dataset.mask;
+    $(input).mask(mask);
+  });
 }
