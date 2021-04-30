@@ -1,6 +1,18 @@
 body {
-    background: #687389;  /* fallback for old browsers */
-    /* background: -webkit-linear-gradient(to right, #7BC6CC, #BE93C5);  Chrome 10-25, Safari 5.1-6 */
-    /* background: linear-gradient(to right, #7BC6CC, #BE93C5); W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
-    
+    background: #687389;
+}
+#clear-form {
+    display: none;
+}
+.color-label {
+    width: 35px;
+    height: 16px;
+}
+
+h1, h2 {
+    cursor: default;
+    text-shadow: 0px 3px 4px rgba(150, 150, 150, 0.5);
+}
+h2 {
+    border-bottom: 1px dashed grey;
 }
