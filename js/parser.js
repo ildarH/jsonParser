@@ -48,7 +48,7 @@ function readData(fileAsText, filename) {
 function showErrorMessage(message) {
   const errorMessageSpan = `<span>${message}</span>`;
   errorMessageDiv.style.display = 'block';
-  errorMessageDiv.insertAdjacentHTML('beforeend', errorMessageSpan);
+  errorMessageDiv.append(errorMessageSpan);
   console.error(message);
 }
 
@@ -57,6 +57,7 @@ function parseObjToHtml(obj, filename) {
   const fragment = document.createDocumentFragment();
   const form = document.createElement('form');
   form.id = 'form';
+  form.classList = 'py-3';
 
   const header = name || filename;
 
@@ -67,8 +68,8 @@ function parseObjToHtml(obj, filename) {
   formRoot.append(title);
   formRoot.append(form);
   fragment.append(...inputs);
-  fragment.append(control);
   fragment.append(refs);
+  fragment.append(control);
 
   form.append(fragment);
 
@@ -104,11 +105,8 @@ function createInputElement(input, reserveId = 0) {
       : reserveId;
   let {
     type,
-    required,
-    placeholder,
     mask,
     technologies,
-    multiple,
     filetype,
     checked,
     colors,
@@ -180,7 +178,7 @@ function createInputElement(input, reserveId = 0) {
   Object.assign(inputElement, attribute);
 
   if (isLabelExist) {
-    labelElement.classList = 'col-form-label';
+    labelElement.classList = 'form-check-label';
     labelElement.htmlFor = `${id}-${type}`;
     labelElement.append(input.label);
   }
@@ -207,8 +205,8 @@ function createReferences(references) {
   const rowElement = document.createElement('div');
   const colElement = document.createElement('div');
   const fragment = document.createDocumentFragment();
-  rowElement.classList = 'row mb-3 justify-content-evenly';
-  colElement.classList = 'col-6';
+  rowElement.classList = 'row mb-3';
+  colElement.classList = 'col';
 
   references.forEach((reference) => {
     const textWithoutRef = reference['text without ref'] || null;

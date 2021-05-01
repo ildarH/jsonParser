@@ -21,5 +21,9 @@ h2 {
     border-bottom: 1px dashed grey;
 }
 a {
-    margin-left: 1rem;
+    margin-right: 1rem;
+    text-decoration: none;
+}
+a:hover {
+    text-decoration: underline;
 }
